@@ -8,9 +8,44 @@ from _enums import TournamentType, TournamentRankedBy, TournamentGrandFinalModif
 from _errors import *
 from match import Match
 from participant import Participant
-'2015-01-19T16:57:17-05:00'
-date_time_str = '2018-06-29 08:15:27.243860'
-date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M:%S%z')
+
+
+class Matches:
+    def __init__(self, base_api_link, auth_info, tournament_id):
+        self.base_api_link = base_api_link
+        self.auth_info = auth_info
+        self.tournament_id = tournament_id
+
+    def get_all(self, state = None, participant_id = None):
+        req_link = self.base_api_link + f"tournaments/{self.tournament_id}/matches.json"
+
+        data = {}
+        if participant_id:
+            if isinstance(participant_id, Participant):
+                participant_id = participant_id.id
+            else:
+                if not isinstance(participant_id, int):
+                    raise BadArgument('Parameter `participant_id` must be of type int')
+            data['participant_id'] = participant_id
+
+        if state:
+            if not isinstance(state, MatchState):
+                try:
+                    state = MatchState(state)
+                except:
+                    raise BadArgument(f"Parameter `state` is invalid, valid Types: {', '.join(['`{}`'.format(i.value) for i in list(MatchState)])}")
+
+            data['state'] = state.name
+
+        url_params = ""
+        if len(data.keys()) > 0:
+            url_params = "?" + urlencode(_prepare_params(data))
+
+        req = requests.get(req_link + url_params, auth = self.auth_info)
+        if not req.status_code == 200:
+            raise HTTPException(req.status_code)
+        else:
+            return [Match(match_data, self.base_link, self.auth_info) for match_data in req.json()]
 
 # A Tournament object. Contains all information on a tournament
 # as well as methods relating to acting on a tournament.
@@ -26,27 +61,36 @@ class Tournament:
         self.description = raw_tournament_data['description']
         self.tournament_type = TournamentType(raw_tournament_data['tournament_type'])
 
-        split_date = raw_tournament_data['started_at'].split(':')
-        date_str = ":".join(split_date[:-1]) + split_date[-1]
-        self.started_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+        if raw_tournament_data['started_at']:
+            split_date = raw_tournament_data['started_at'].split(':')
+            date_str = ":".join(split_date[:-1]) + split_date[-1]
+            self.started_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
+        else:
+            self.started_at = raw_tournament_data['started_at']
 
         if raw_tournament_data['completed_at']:
             split_date = raw_tournament_data['completed_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.completed_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.completed_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.completed_at = raw_tournament_data['completed_at']
 
         self.require_score_agreement = raw_tournament_data['require_score_agreement']
         self.notify_users_when_matches_open = raw_tournament_data['notify_users_when_matches_open']
 
-        split_date = raw_tournament_data['created_at'].split(':')
-        date_str = ":".join(split_date[:-1]) + split_date[-1]
-        self.created_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+        if raw_tournament_data['created_at']:
+            split_date = raw_tournament_data['created_at'].split(':')
+            date_str = ":".join(split_date[:-1]) + split_date[-1]
+            self.created_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
+        else:
+            self.created_at = raw_tournament_data['created_at']
 
-        split_date = raw_tournament_data['updated_at'].split(':')
-        date_str = ":".join(split_date[:-1]) + split_date[-1]
-        self.updated_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+        if raw_tournament_data['updated_at']:
+            split_date = raw_tournament_data['updated_at'].split(':')
+            date_str = ":".join(split_date[:-1]) + split_date[-1]
+            self.updated_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
+        else:
+            self.updated_at = raw_tournament_data['updated_at']
 
         self.state = raw_tournament_data['state']
         self.open_signup = raw_tournament_data['open_signup']
@@ -89,14 +133,14 @@ class Tournament:
         if raw_tournament_data['start_at']:
             split_date = raw_tournament_data['start_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.start_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.start_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.start_at = raw_tournament_data['start_at']
 
         if raw_tournament_data['started_checking_in_at']:
             split_date = raw_tournament_data['started_checking_in_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.started_checking_in_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.started_checking_in_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.started_checking_in_at = raw_tournament_data['started_checking_in_at']
 
@@ -105,7 +149,7 @@ class Tournament:
         if raw_tournament_data['locked_at']:
             split_date = raw_tournament_data['locked_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.locked_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.locked_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.locked_at = raw_tournament_data['locked_at']
 
@@ -490,39 +534,3 @@ class Tournament:
                         setattr(self, i, data[i])
         else:
             raise UserInputError()
-
-class Matches():
-    def __init___(self, api_base_link, auth_info, tournament_id):
-        self.api_base_link = api_base_link
-        self.auth_info = auth_info
-
-    def get_all(self, state = None, participant_id = None):
-        req_link = self.base_api_link + f"tournaments/{tournament_id}/matches.json"
-
-        data = {}
-        if participant_id:
-            if isinstance(participant_id, Participant):
-                participant_id = participant_id.id
-            else:
-                if not isinstance(participant_id, int):
-                    raise BadArgument('Parameter `participant_id` must be of type int')
-            data['participant_id'] = participant_id
-
-        if state:
-            if not isinstance(state, MatchState):
-                try:
-                    state = MatchState(state)
-                except:
-                    raise BadArgument(f"Parameter `state` is invalid, valid Types: {', '.join(['`{}`'.format(i.value) for i in list(MatchState)])}")
-
-            data['state'] = state.name
-
-        url_params = ""
-        if len(data.keys()) > 0:
-            url_params = "?" + urlencode(_prepare_params(data))
-
-        req = requests.get(req_link + url_params, auth = self.auth_info)
-        if not req.status_code == 200:
-            raise HTTPException(req.status_code)
-        else:
-            return [Match(match_data, self.base_link, self.auth_info) for match_data in req.json()]

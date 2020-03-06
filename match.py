@@ -13,7 +13,7 @@ class Match:
         if raw_match_data['created_at']:
             split_date = raw_match_data['created_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.created_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.created_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.created_at = raw_match_data['created_at']
 
@@ -36,14 +36,14 @@ class Match:
         if raw_match_data['scheduled_time']:
             split_date = raw_match_data['scheduled_time'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.scheduled_time = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.scheduled_time = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.scheduled_time = raw_match_data['scheduled_time']
 
         if raw_match_data['started_at']:
             split_date = raw_match_data['started_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.started_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.started_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.started_at = raw_match_data['started_at']
 
@@ -54,14 +54,14 @@ class Match:
         if raw_match_data['underway_at']:
             split_date = raw_match_data['underway_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.underway_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.underway_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.underway_at = raw_match_data['underway_at']
 
         if raw_match_data['updated_at']:
             split_date = raw_match_data['updated_at'].split(':')
             date_str = ":".join(split_date[:-1]) + split_date[-1]
-            self.updated_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+            self.updated_at = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
         else:
             self.updated_at = raw_match_data['updated_at']
 

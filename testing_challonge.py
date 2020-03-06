@@ -1,9 +1,10 @@
 import requests
 from challonge import Challonge
 from time import sleep
+import os
 
-API_KEY = "wTxdPDCfPz5AaIHKFiCRATNZTwi3xbMptcXBSMBR"
-API_USER = "Heroicos_HM"
+API_KEY = os.environ['CHALLONGE_API_KEY']
+API_USER = os.environ['CHALLONGE_API_USER']
 
 TRIALS_TOURNEY_ID = 8158700
 
@@ -14,7 +15,7 @@ challonge_account = Challonge(username = API_USER, api_key = API_KEY)
 # tournament_list = challonge_account.tournaments.get_all()
 
 # Get a specific tournament by ID or url
-# trials_tourney = challonge_account.tournaments.get(TRIALS_TOURNEY_ID, include_matches = True, include_participants = True)
+trials_tourney = challonge_account.tournaments.get(TRIALS_TOURNEY_ID, include_matches = True, include_participants = True)
 
 # Create a tournament
 #new_tournament = challonge_account.tournaments.create("Personal Tournament Test", 'api_tournament_test', pts_for_game_win = 1, pts_for_game_tie = 0.5, pts_for_match_win = 4, pts_for_match_tie = 2)
@@ -27,4 +28,4 @@ challonge_account = Challonge(username = API_USER, api_key = API_KEY)
 
 # Process check ins for a tournament
 # tournament.process_check_ins()
-print(tournament.state)
+print(trials_tourney.tournament_matches.get_all())
