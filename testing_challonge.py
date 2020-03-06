@@ -26,6 +26,5 @@ challonge_account = Challonge(username = API_USER, api_key = API_KEY)
 # new_tournament.delete()
 
 # Process check ins for a tournament
-tournament = challonge_account.tournaments.get('api_tournament_testing')
-tournament.process_check_ins()
+# tournament.process_check_ins()
 print(tournament.state)
